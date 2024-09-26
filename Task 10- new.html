@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Player</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Music Player</h1>
+        <div id="app"></div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
+
+class AudioTrack {
+    constructor(public title: string, public url: string, public ratings: number[] = []) {}
+
+    addRating(rating: number) {
+        this.ratings.push(rating);
+    }
+
+    get averageRating(): number {
+        const total = this.ratings.reduce((a, b) => a + b, 0);
+        return this.ratings.length ? total / this.ratings.length : 0;
+    }
+}
+
+class Playlist {
+    tracks: AudioTrack[] = [];
+
+    constructor(public name: string) {}
+
+    addTrack(track: AudioTrack) {
+        this.tracks.push(track);
+    }
+
+    searchTrack(title: string): AudioTrack | undefined {
+        return this.tracks.find(track => track.title.toLowerCase() === title.toLowerCase());
+    }
+
+    get averageRating(): number {
+        const totalRatings = this.tracks.reduce((acc, track) => acc + track.averageRating, 0);
+        return this.tracks.length ? totalRatings / this.tracks.length : 0;
+    }
+}
+
+class MusicPlayer {
+    playlists: Playlist[] = [];
+
+    createPlaylist(name: string) {
+        const playlist = new Playlist(name);
+        this.playlists.push(playlist);
+    }
+
+    searchPlaylist(name: string): Playlist | undefined {
+        return this.playlists.find(playlist => playlist.name.toLowerCase() === name.toLowerCase());
+    }
+
+    render() {
+        const appDiv = document.getElementById('app');
+        if (appDiv) {
+            appDiv.innerHTML = this.playlists.map(playlist => `
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">${playlist.name}</h5>
+                        <p class="card-text">Average Rating: ${playlist.averageRating.toFixed(2)}</p>
+                        <h6>Tracks:</h6>
+                        <ul>
+                            ${playlist.tracks.map(track => `
+                                <li>
+                                    ${track.title} - Average Rating: ${track.averageRating.toFixed(2)}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `).join('');
+        }
+    }
+}
+
+// Initialize the Music Player
+const player = new MusicPlayer();
+
+// Create Playlists
+player.createPlaylist("Chill Beats");
+player.createPlaylist("Top Hits");
+
+// Simulate adding tracks and random ratings
+const chillPlaylist = player.searchPlaylist("Chill Beats");
+if (chillPlaylist) {
+    const track1 = new AudioTrack("Track 1", "http://example.com/track1.mp3");
+    const randomRating1 = Math.floor(Math.random() * 5) + 1; // Random rating from 1 to 5
+    track1.addRating(randomRating1);
+    chillPlaylist.addTrack(track1);
+}
+
+const topHitsPlaylist = player.searchPlaylist("Top Hits");
+if (topHitsPlaylist) {
+    const track2 = new AudioTrack("Track 2", "http://example.com/track2.mp3");
+    const randomRating2 = Math.floor(Math.random() * 5) + 1; // Random rating from 1 to 5
+    track2.addRating(randomRating2);
+    topHitsPlaylist.addTrack(track2);
+}
+
+// Re-render the app to display updated playlists
+player.render();
+
+body {
+    background-color: #f8f9fa;
+    margin: 20px;
+}
+.card {
+    margin: 10px 0;
+}
+{
+    "name": "music-player",
+    "version": "1.0.0",
+    "scripts": {
+      "build": "tsc app.ts --outDir .",
+      "start": "live-server"
+    },
+    "devDependencies": {
+      "typescript": "^4.0.0"
+    }
+  }
+  
